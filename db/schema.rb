@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160219154240) do
+ActiveRecord::Schema.define(version: 20160219173046) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string   "slug",                      null: false
@@ -343,6 +343,26 @@ ActiveRecord::Schema.define(version: 20160219154240) do
   add_index "spree_payments", ["payment_method_id"], name: "index_spree_payments_on_payment_method_id"
   add_index "spree_payments", ["source_id", "source_type"], name: "index_spree_payments_on_source_id_and_source_type"
 
+  create_table "spree_plans", force: :cascade do |t|
+    t.string   "api_plan_id"
+    t.decimal  "amount",            precision: 8, scale: 2
+    t.string   "interval"
+    t.integer  "interval_count",                            default: 1
+    t.string   "name"
+    t.string   "currency"
+    t.integer  "recurring_id"
+    t.integer  "trial_period_days",                         default: 0
+    t.boolean  "active",                                    default: false
+    t.datetime "deleted_at"
+    t.boolean  "default",                                   default: false
+  end
+
+  add_index "spree_plans", ["default"], name: "index_spree_plans_on_default"
+  add_index "spree_plans", ["deleted_at", "active"], name: "index_spree_plans_on_deleted_at_and_active"
+  add_index "spree_plans", ["deleted_at", "recurring_id", "active"], name: "index_spree_plans_on_deleted_at_and_recurring_id_and_active"
+  add_index "spree_plans", ["deleted_at", "recurring_id"], name: "index_spree_plans_on_deleted_at_and_recurring_id"
+  add_index "spree_plans", ["deleted_at"], name: "index_spree_plans_on_deleted_at"
+
   create_table "spree_preferences", force: :cascade do |t|
     t.text     "value"
     t.string   "key"
@@ -518,6 +538,17 @@ ActiveRecord::Schema.define(version: 20160219154240) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "spree_recurrings", force: :cascade do |t|
+    t.string   "name"
+    t.string   "type"
+    t.text     "description"
+    t.boolean  "active"
+    t.datetime "deleted_at"
+    t.text     "preferences"
+  end
+
+  add_index "spree_recurrings", ["deleted_at"], name: "index_spree_recurrings_on_deleted_at"
 
   create_table "spree_refund_reasons", force: :cascade do |t|
     t.string   "name"
@@ -818,6 +849,30 @@ ActiveRecord::Schema.define(version: 20160219154240) do
   add_index "spree_stores", ["default"], name: "index_spree_stores_on_default"
   add_index "spree_stores", ["url"], name: "index_spree_stores_on_url"
 
+  create_table "spree_subscription_events", force: :cascade do |t|
+    t.string   "event_id"
+    t.integer  "subscription_id"
+    t.string   "request_type"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.text     "response"
+  end
+
+  add_index "spree_subscription_events", ["event_id"], name: "index_spree_subscription_events_on_event_id"
+  add_index "spree_subscription_events", ["subscription_id"], name: "index_spree_subscription_events_on_subscription_id"
+
+  create_table "spree_subscriptions", force: :cascade do |t|
+    t.integer  "plan_id"
+    t.string   "email"
+    t.integer  "user_id"
+    t.datetime "subscribed_at"
+    t.datetime "unsubscribed_at"
+  end
+
+  add_index "spree_subscriptions", ["plan_id"], name: "index_spree_subscriptions_on_plan_id"
+  add_index "spree_subscriptions", ["subscribed_at"], name: "index_spree_subscriptions_on_subscribed_at"
+  add_index "spree_subscriptions", ["unsubscribed_at"], name: "index_spree_subscriptions_on_unsubscribed_at"
+
   create_table "spree_tax_categories", force: :cascade do |t|
     t.string   "name"
     t.string   "description"
@@ -939,6 +994,7 @@ ActiveRecord::Schema.define(version: 20160219154240) do
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
+    t.string   "stripe_customer_id"
   end
 
   add_index "spree_users", ["deleted_at"], name: "index_spree_users_on_deleted_at"

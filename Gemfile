@@ -49,3 +49,4 @@ end
 gem 'spree', '~> 3.0.6.1'
 gem 'spree_gateway', '~> 3.0.0'
 gem 'spree_auth_devise', '~> 3.0.0'
+gem 'spree_account_recurring', '~> 2.0'
